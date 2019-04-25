@@ -52,7 +52,11 @@ class Board
    @panel[row,col][:click] = true
    @panel[row,col][:question] = false
    @panel[row,col][:mark] = false
-   @state = 'looser' if @panel[row,col][:value] == -1
+   if @panel[row,col][:value] == -1
+     @state = 'looser'
+   else
+     @state = 'winner' if self.winner?
+   end
    {
      value: @panel.element(row,col),
      neighbors: neighbors(row, col),
