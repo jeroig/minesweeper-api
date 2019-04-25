@@ -1,7 +1,7 @@
 class Api::GameController < ApplicationController
 
   def click
-    render json: {col: params[:row], row: params[:row]}
+    render json: Board.instance.click(params[:row].to_i, params[:col].to_i)
   end
 
 end
