@@ -5,8 +5,8 @@ Design and implement RESTful API for the game
 ## Funtionality
 As API we defined support routes to be called
 ```
-api/game/click/row:row/col/:col
-api/game/mark/row:row/col/:col
+api/game/click/row/:row/col/:col
+api/game/mark/row/:row/col/:col
 api/game/question/row:row/col/:col
 api/game/reset  <-- is called when game is over
 ```
