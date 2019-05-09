@@ -64,51 +64,51 @@ class Board
    }
   end
 
+  def to_click(row,col)
+    @panel[row,col][:click] = false
+    @panel[row,col][:question] = false
+    @panel[row,col][:mark] = false
+    @state = 'playing'
+    {value: @panel.element(row,col), state: @state}
+  end
+
   def up_left(row, col)
     return nil if row-1 < 0 || col-1 < 0
-    virtual_click(row-1,col-1)
     @panel.element(row-1,col-1)
   end
 
   def up(row, col)
     return nil if row-1 < 0
-    virtual_click(row-1,col)
     @panel.element(row-1,col)
   end
 
   def up_right(row, col)
     return nil if row-1 < 0 || col+1 >= @panel.column_count
-    virtual_click(row-1,col+1)
     @panel.element(row-1,col+1)
   end
 
   def left(row, col)
     return nil if col-1 < 0
-    virtual_click(row,col-1)
     @panel.element(row,col-1)
   end
 
   def right(row, col)
     return nil if col+1 >= @panel.column_count
-    virtual_click(row,col+1)
     @panel.element(row,col+1)
   end
 
   def down_left(row, col)
     return nil if row+1 >= @panel.row_count || col-1 < 0
-    virtual_click(row+1,col-1)
     @panel.element(row+1,col-1)
   end
 
   def down(row, col)
     return nil if row+1 >= @panel.row_count
-    virtual_click(row+1,col)
     @panel.element(row+1,col)
   end
 
   def down_right(row, col)
     return nil if row+1 >= @panel.row_count || col+1  >= @panel.column_count
-    virtual_click(row+1,col+1)
     @panel.element(row+1,col+1)
   end
 
@@ -187,11 +187,5 @@ class Board
 
     def default_struct(value)
       {value: value, question: false, mark: false, click: false }
-    end
-
-    def virtual_click(row, col)
-      if @panel[row,col][:value] > 0 && !@panel[row,col][:question] && !@panel[row,col][:mark]
-        @panel[row,col][:click] = true
-      end
     end
 end
