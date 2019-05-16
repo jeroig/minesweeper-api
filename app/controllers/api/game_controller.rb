@@ -17,6 +17,10 @@ class Api::GameController < ApplicationController
   end
 
   def reset
-    render json: Board.instance.reset
+    if params[:rows].nil? ||  params[:columns].nil? || params[:mines].nil?
+      render json: Board.instance.reset()
+    else
+      render json: Board.instance.reset(params[:rows].to_i, params[:columns].to_i, params[:mines].to_i)
+    end
   end
 end

@@ -5,6 +5,9 @@ class Board
   include Singleton
   attr_reader :panel
   attr_reader :state
+  attr_reader :rows
+  attr_reader :columns
+  attr_reader :mines
 
   class Matrix < Matrix
     def []=(row, col, value)
@@ -12,51 +15,54 @@ class Board
     end
   end
 
-  def initialize
-    @panel = Matrix.rows([
-      [default_struct(0), default_struct(1), default_struct(1), default_struct(1), default_struct(0)],
-      [default_struct(0), default_struct(1), default_struct(-1), default_struct(1), default_struct(0)],
-      [default_struct(0), default_struct(1), default_struct(1), default_struct(1), default_struct(0)],
-      [default_struct(1), default_struct(1), default_struct(1), default_struct(0), default_struct(0)],
-      [default_struct(1), default_struct(-1), default_struct(2), default_struct(1), default_struct(1)],
-      [default_struct(1), default_struct(1), default_struct(2), default_struct(-1), default_struct(1)],
-      [default_struct(0), default_struct(0), default_struct(1), default_struct(1), default_struct(1)]
-    ])
-    @state = 'playing'
+  def initialize(rows = 7, columns = 5, mines = 3 )
+    self.reset(rows,columns,mines)
   end
 
-  #def initialize
-  #  #Hard-Code Matrix
-  #  #value = 0        ==> empty cell
-  #  #value = Integer  ==> adjacent squares contain mines
-  #  #value = -1       ==> a BOMB!
-  #  @panel = Matrix.rows([
-  #      [ 0 , 1 , 1 , 1 , 0 ],
-  #      [ 0 , 1 ,-1 , 1 , 0 ],
-  #      [ 0 , 1 , 1 , 1 , 0 ],
-  #      [ 1 , 1 , 1 , 0 , 0 ],
-  #      [ 1 ,-1 , 2 , 1 , 1 ],
-  #      [ 1 , 1 , 2 ,-1 , 1 ],
-  #      [ 0 , 0 , 1 , 1 , 1 ]
-  #  ])
-  #end
+  def prettyP
+    @panel.to_a.each do |row|
+      p row.map(&:value)
+    end
+  end
 
-  #def click(row, col)
-  #  {
-  #    value: @panel.element(row,col),
-  #    neighbors: neighbors(row, col)
-  #  }
-  #end
+  def reset(rows = 7, columns = 5, mines = 3)
+    @panel = Matrix.build(rows, columns){ Cell.new }
+    @state = 'playing'
+    @rows  = rows
+    @columns = columns
+    @mines = mines
+    #randomize mines position
+    index_mines = (0..((@rows * @columns)-1)).to_a.sample(@mines).sort
+    index_mines.each do |i|
+      tmp = self.coordenate(i)
+      @panel[tmp[:row],tmp[:col]].value = -1
+    end
+    setValues()
+    {message: 'ok', board: {rows: @rows, columns: @columns, mines: @mines, state: @state}}
+  end
+
+  def index(row, col)
+    col + self.columns * row
+  end
+
+  def coordenate(index)
+    {
+      row:  index / self.columns,
+      col:  index % self.columns
+    }
+  end
 
   def click(row,col)
-   @panel[row,col][:click] = true
-   @panel[row,col][:question] = false
-   @panel[row,col][:mark] = false
-   if @panel[row,col][:value] == -1
+   cell = @panel[row,col]
+   cell.question = false
+   cell.mark = false
+   cell.click = true
+   if cell.mine?
      @state = 'looser'
    else
      @state = 'winner' if self.winner?
    end
+   @panel[row,col] = cell
    {
      value: @panel.element(row,col),
      neighbors: neighbors(row, col),
@@ -65,65 +71,73 @@ class Board
   end
 
   def to_click(row,col)
-    @panel[row,col][:click] = false
-    @panel[row,col][:question] = false
-    @panel[row,col][:mark] = false
+    @panel[row,col].click = false
+    @panel[row,col].question = false
+    @panel[row,col].mark = false
     @state = 'playing'
     {value: @panel.element(row,col), state: @state}
   end
 
   def up_left(row, col)
     return nil if row-1 < 0 || col-1 < 0
+    return nil if @panel.element(row-1,col-1).value == -1
     @panel.element(row-1,col-1)
   end
 
   def up(row, col)
     return nil if row-1 < 0
+    return nil if @panel.element(row-1,col).value == -1
     @panel.element(row-1,col)
   end
 
   def up_right(row, col)
     return nil if row-1 < 0 || col+1 >= @panel.column_count
+    return nil if @panel.element(row-1,col+1).value == -1
     @panel.element(row-1,col+1)
   end
 
   def left(row, col)
     return nil if col-1 < 0
+    return nil if @panel.element(row,col-1).value == -1
     @panel.element(row,col-1)
   end
 
   def right(row, col)
     return nil if col+1 >= @panel.column_count
+    return nil if @panel.element(row,col+1).value == -1
     @panel.element(row,col+1)
   end
 
   def down_left(row, col)
     return nil if row+1 >= @panel.row_count || col-1 < 0
+    return nil if @panel.element(row+1,col-1).value == -1
     @panel.element(row+1,col-1)
   end
 
   def down(row, col)
     return nil if row+1 >= @panel.row_count
+    return nil if @panel.element(row+1,col).value == -1
     @panel.element(row+1,col)
   end
 
   def down_right(row, col)
     return nil if row+1 >= @panel.row_count || col+1  >= @panel.column_count
+    return nil if @panel.element(row+1,col+1).value == -1
     @panel.element(row+1,col+1)
   end
 
   def question(row, col)
-    @panel[row,col][:question] = true
-    @panel[row,col][:mark] = false
-    @panel[row,col][:click] = false
+    @panel[row,col].question = true
+    @panel[row,col].mark = false
+    @panel[row,col].click = false
     @state = 'playing'
     {value: @panel.element(row,col), state: @state}
   end
 
   def mark(row, col)
-    @panel[row,col][:mark] = true
-    @panel[row,col][:question] = false
-    @panel[row,col][:click] = false
+    @panel[row,col].mark = true
+    @panel[row,col].question = false
+    @panel[row,col].click = false
     @state = 'winner' if self.winner?
     {value: @panel.element(row,col), state: @state}
   end
@@ -132,23 +146,24 @@ class Board
     #return true if all marks are in -1 value
     return false if @state == 'looser'
     @panel.map {|cell|
-      return false if cell[:question]
-      return false if !cell[:click] && cell[:value] != -1
-      return false if cell[:value] != -1 && cell[:mark]
-      return false if cell[:value] == -1 && !cell[:mark]
+      return false if cell.question
+      return false if !cell.click && cell.value != -1
+      return false if cell.value != -1 && cell.mark
+      return false if cell.value == -1 && !cell.mark
     }
     return true
   end
 
-  def reset
-    @state = 'playing'
-    @panel.each_with_index do |cell, row, col|
-      @panel[row,col] = default_struct(cell[:value])
-    end
-    {message: 'ok'}
-  end
-
   private
+    def setValues
+      @panel.each_with_index {|cell, row, col|
+        next unless cell.value == -1
+        neighbors(row,col).values.each do |ncell|
+          ncell.value += 1 unless ncell.value == -1
+        end
+      }
+    end
+
     def neighbors(row, col)
       {
         key('up_left', row, col) => up_left(row,col),
@@ -183,9 +198,5 @@ class Board
         else
           nil
       end
-    end
-
-    def default_struct(value)
-      {value: value, question: false, mark: false, click: false }
     end
 end
