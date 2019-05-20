@@ -26,7 +26,7 @@ class Board
   end
 
   def reset(rows = 7, columns = 5, mines = 3)
-    @panel = Matrix.build(rows, columns){ Cell.new }
+    @panel = Matrix.build(rows, columns){ |row, col| Cell.new(row, col) }
     @state = 'playing'
     @rows  = rows
     @columns = columns
@@ -53,18 +53,17 @@ class Board
   end
 
   def click(row,col)
-   cell = @panel[row,col]
-   cell.question = false
-   cell.mark = false
-   cell.click = true
-   if cell.mine?
+   @panel[row,col].question = false
+   @panel[row,col].mark = false
+   @panel[row,col].click = true
+   if @panel[row,col].mine?
      @state = 'looser'
    else
      @state = 'winner' if self.winner?
    end
-   @panel[row,col] = cell
+   #@panel[row,col] = cell
    {
-     value: @panel.element(row,col),
+     cell: @panel[row,col],
      neighbors: neighbors(row, col),
      state: @state
    }
@@ -75,7 +74,7 @@ class Board
     @panel[row,col].question = false
     @panel[row,col].mark = false
     @state = 'playing'
-    {value: @panel.element(row,col), state: @state}
+    {cell: @panel.element(row,col), state: @state}
   end
 
   def up_left(row, col)
@@ -131,7 +130,7 @@ class Board
     @panel[row,col].mark = false
     @panel[row,col].click = false
     @state = 'playing'
-    {value: @panel.element(row,col), state: @state}
+    {cell: @panel.element(row,col), state: @state}
   end
 
   def mark(row, col)
@@ -139,7 +138,7 @@ class Board
     @panel[row,col].question = false
     @panel[row,col].click = false
     @state = 'winner' if self.winner?
-    {value: @panel.element(row,col), state: @state}
+    {cell: @panel.element(row,col), state: @state}
   end
 
   def winner?
@@ -158,45 +157,22 @@ class Board
     def setValues
       @panel.each_with_index {|cell, row, col|
         next unless cell.value == -1
-        neighbors(row,col).values.each do |ncell|
+        neighbors(row,col).each do |ncell|
           ncell.value += 1 unless ncell.value == -1
         end
       }
     end
 
     def neighbors(row, col)
-      {
-        key('up_left', row, col) => up_left(row,col),
-        key('up', row, col) => up(row,col),
-        key('up_right', row, col) => up_right(row,col),
-        key('left', row, col) => left(row,col),
-        key('right', row, col) => right(row,col),
-        key('down_left', row, col) => down_left(row,col),
-        key('down', row, col) => down(row,col),
-        key('down_right', row, col) => down_right(row,col),
-      }.compact
-    end
-
-    def key(position, row, col)
-      case position
-        when 'up_left'
-          !self.up_left(row, col).nil? ? "#{row-1}_#{col-1}".to_sym : nil
-        when 'up'
-          !self.up(row, col).nil? ? "#{row-1}_#{col}".to_sym : nil
-        when 'up_right'
-          !self.up_right(row, col).nil? ? "#{row-1}_#{col+1}".to_sym : nil
-        when 'left'
-          !self.left(row, col).nil? ? "#{row}_#{col-1}".to_sym : nil
-        when 'right'
-          !self.right(row, col).nil? ? "#{row}_#{col+1}".to_sym : nil
-        when 'down_left'
-          !self.down_left(row, col).nil? ? "#{row+1}_#{col-1}".to_sym : nil
-        when 'down'
-          !self.down(row, col).nil? ? "#{row+1}_#{col}".to_sym : nil
-        when 'down_right'
-          !self.down_right(row, col).nil? ? "#{row+1}_#{col+1}".to_sym : nil
-        else
-          nil
-      end
+      [
+        up_left(row,col),
+        up(row,col),
+        up_right(row,col),
+        left(row,col),
+        right(row,col),
+        down_left(row,col),
+        down(row,col),
+        down_right(row,col)
+      ].compact
     end
 end
