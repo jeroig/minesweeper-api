@@ -53,15 +53,12 @@ class Board
   end
 
   def click(row,col)
-   @panel[row,col].question = false
-   @panel[row,col].mark = false
-   @panel[row,col].click = true
+   @panel[row,col].state = 'clicked'
    if @panel[row,col].mine?
      @state = 'looser'
    else
      @state = 'winner' if self.winner?
    end
-   #@panel[row,col] = cell
    {
      cell: @panel[row,col],
      neighbors: neighbors(row, col),
@@ -70,9 +67,7 @@ class Board
   end
 
   def to_click(row,col)
-    @panel[row,col].click = false
-    @panel[row,col].question = false
-    @panel[row,col].mark = false
+    @panel[row,col].state = 'unclicked'
     @state = 'playing'
     {cell: @panel.element(row,col), state: @state}
   end
@@ -126,17 +121,13 @@ class Board
   end
 
   def question(row, col)
-    @panel[row,col].question = true
-    @panel[row,col].mark = false
-    @panel[row,col].click = false
+    @panel[row,col].state = 'disputed'
     @state = 'playing'
     {cell: @panel.element(row,col), state: @state}
   end
 
   def mark(row, col)
-    @panel[row,col].mark = true
-    @panel[row,col].question = false
-    @panel[row,col].click = false
+    @panel[row,col].state = 'marked'
     @state = 'winner' if self.winner?
     {cell: @panel.element(row,col), state: @state}
   end
@@ -145,10 +136,10 @@ class Board
     #return true if all marks are in -1 value
     return false if @state == 'looser'
     @panel.map {|cell|
-      return false if cell.question
-      return false if !cell.click && cell.value != -1
-      return false if cell.value != -1 && cell.mark
-      return false if cell.value == -1 && !cell.mark
+      return false if cell.state == 'disputed'
+      return false if cell.state != 'clicked'  && cell.value != -1
+      return false if cell.value != -1 && cell.state == 'marked'
+      return false if cell.value == -1 && cell.state != 'marked'
     }
     return true
   end

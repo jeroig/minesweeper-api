@@ -23,4 +23,5 @@ class Api::GameController < ApplicationController
       render json: Board.instance.reset(params[:rows].to_i, params[:columns].to_i, params[:mines].to_i)
     end
   end
+  
 end
