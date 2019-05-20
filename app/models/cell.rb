@@ -5,7 +5,7 @@ class Cell
   attr_reader   :col
   attr_accessor :state
 
-  def initialize(row, col, value = 0, question = false, mark = false, click = false)
+  def initialize(row, col, value = 0)
       @value    = value
       @row      = row
       @col      = col

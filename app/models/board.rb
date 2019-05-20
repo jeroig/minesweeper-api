@@ -38,7 +38,7 @@ class Board
       @panel[tmp[:row],tmp[:col]].value = -1
     end
     setValues()
-    {message: 'ok', board: {rows: @rows, columns: @columns, mines: @mines, state: @state, info: @panel}}
+    {message: 'ok', game: {timer: 0, state: @state, board: {rows: @rows, columns: @columns, mines: @mines,  cells: @panel}}}
   end
 
   def index(row, col)
