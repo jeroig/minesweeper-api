@@ -74,49 +74,49 @@ class Board
 
   def up_left(row, col)
     return nil if row-1 < 0 || col-1 < 0
-    return nil if @panel.element(row-1,col-1).value == -1
+    return nil unless @panel.element(row-1,col-1).show?
     @panel.element(row-1,col-1)
   end
 
   def up(row, col)
     return nil if row-1 < 0
-    return nil if @panel.element(row-1,col).value == -1
+    return nil unless @panel.element(row-1,col).show?
     @panel.element(row-1,col)
   end
 
   def up_right(row, col)
     return nil if row-1 < 0 || col+1 >= @panel.column_count
-    return nil if @panel.element(row-1,col+1).value == -1
+    return nil unless @panel.element(row-1,col+1).show?
     @panel.element(row-1,col+1)
   end
 
   def left(row, col)
     return nil if col-1 < 0
-    return nil if @panel.element(row,col-1).value == -1
+    return nil unless @panel.element(row,col-1).show?
     @panel.element(row,col-1)
   end
 
   def right(row, col)
     return nil if col+1 >= @panel.column_count
-    return nil if @panel.element(row,col+1).value == -1
+    return nil unless @panel.element(row,col+1).show?
     @panel.element(row,col+1)
   end
 
   def down_left(row, col)
     return nil if row+1 >= @panel.row_count || col-1 < 0
-    return nil if @panel.element(row+1,col-1).value == -1
+    return nil unless @panel.element(row+1,col-1).show?
     @panel.element(row+1,col-1)
   end
 
   def down(row, col)
     return nil if row+1 >= @panel.row_count
-    return nil if @panel.element(row+1,col).value == -1
+    return nil unless @panel.element(row+1,col).show?
     @panel.element(row+1,col)
   end
 
   def down_right(row, col)
     return nil if row+1 >= @panel.row_count || col+1  >= @panel.column_count
-    return nil if @panel.element(row+1,col+1).value == -1
+    return nil unless @panel.element(row+1,col+1).show?
     @panel.element(row+1,col+1)
   end
 

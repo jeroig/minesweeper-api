@@ -16,4 +16,9 @@ class Cell
      return (self.value == -1) ? true : false
    end
 
+   def show?
+     return true if !self.mine? && self.state == 'unclicked'
+     return false
+   end
+
 end
