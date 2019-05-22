@@ -53,17 +53,19 @@ class Board
   end
 
   def click(row,col)
-   @panel[row,col].state = 'clicked'
-   if @panel[row,col].mine?
-     @state = 'looser'
-   else
-     @state = 'winner' if self.winner?
-   end
-   {
-     cell: @panel[row,col],
-     neighbors: neighbors(row, col),
-     state: @state
-   }
+     was_clicked = @panel[row,col].clicked?
+     @panel[row,col].state = 'clicked'
+     if @panel[row,col].mine?
+       @state = 'looser'
+     else
+       @state = 'winner' if self.winner?
+     end
+     {
+       cell: @panel[row,col],
+       neighbors: neighbors(row, col),
+       state: @state,
+       was_clicked: was_clicked
+     }
   end
 
   def to_click(row,col)

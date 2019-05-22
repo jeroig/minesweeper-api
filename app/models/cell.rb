@@ -21,4 +21,8 @@ class Cell
      return false
    end
 
+   def clicked?
+     return self.state == 'clicked' ? true : false
+   end
+
 end
