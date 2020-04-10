@@ -1,171 +1,70 @@
-require 'matrix'
-require 'singleton'
+#require 'matrix'
 
-class Board
-  include Singleton
-  attr_reader :panel
-  attr_reader :state
-  attr_reader :rows
-  attr_reader :columns
-  attr_reader :mines
+class Board < ApplicationRecord
+  enum state: { playing: 0, winner: 1, loser: 2 }
 
-  class Matrix < Matrix
-    def []=(row, col, value)
-      @rows[row][col] = value
+  belongs_to :user
+  has_many   :cells, dependent: :destroy
+
+  validates_numericality_of [:rows,:columns],
+                            greater_than_or_equal_to: 1,
+                            less_than_or_equal_to: 10,
+                            message: 'Rows & Columns must be greater than 0 and less than 11'
+
+  validates_numericality_of :mines, less_than: ->(board) { board.rows * board.columns },  message: 'Mines overflow'
+
+  before_create :createCells
+
+
+  def cellsByRows
+    0.upto(self.rows-1).map do |row|
+      self.cells.where(row: row).select(:id, :value, :row, :col, :state).order(col: :asc)
     end
   end
 
-  def initialize(rows = 7, columns = 5, mines = 3 )
-    self.reset(rows,columns,mines)
-  end
-
-  def prettyP
-    @panel.to_a.each do |row|
-      p row.map(&:value)
+  def getCell(row, col)
+    if self.new_record?
+      # Not exist in DB yet so we can't use "where" clause
+      self.cells.each do |cell| return cell if cell.row == row && cell.col == col end
+      return nil
+    else
+      self.cells.where(row: row).where(col: col).first
     end
   end
 
-  def reset(rows = 7, columns = 5, mines = 3)
-    @panel = Matrix.build(rows, columns){ |row, col| Cell.new(row, col) }
-    @state = 'playing'
-    @rows  = rows
-    @columns = columns
-    @mines = mines
-    #randomize mines position
-    index_mines = (0..((@rows * @columns)-1)).to_a.sample(@mines).sort
-    index_mines.each do |i|
-      tmp = self.coordenate(i)
-      @panel[tmp[:row],tmp[:col]].value = -1
-    end
-    setValues()
-    {message: 'ok', game: {timer: 0, state: @state, board: {rows: @rows, columns: @columns, mines: @mines,  cells: @panel}}}
-  end
-
-  def index(row, col)
-    col + self.columns * row
-  end
-
-  def coordenate(index)
-    {
-      row:  index / self.columns,
-      col:  index % self.columns
-    }
-  end
-
-  def click(row,col)
-     was_clicked = @panel[row,col].clicked?
-     @panel[row,col].state = 'clicked'
-     if @panel[row,col].mine?
-       @state = 'looser'
-     else
-       @state = 'winner' if self.winner?
-     end
-     {
-       cell: @panel[row,col],
-       neighbors: neighbors(row, col),
-       state: @state,
-       was_clicked: was_clicked
-     }
-  end
-
-  def to_click(row,col)
-    @panel[row,col].state = 'unclicked'
-    @state = 'playing'
-    {cell: @panel.element(row,col), state: @state}
-  end
-
-  def up_left(row, col)
-    return nil if row-1 < 0 || col-1 < 0
-    return nil unless @panel.element(row-1,col-1).show?
-    @panel.element(row-1,col-1)
-  end
-
-  def up(row, col)
-    return nil if row-1 < 0
-    return nil unless @panel.element(row-1,col).show?
-    @panel.element(row-1,col)
-  end
-
-  def up_right(row, col)
-    return nil if row-1 < 0 || col+1 >= @panel.column_count
-    return nil unless @panel.element(row-1,col+1).show?
-    @panel.element(row-1,col+1)
-  end
-
-  def left(row, col)
-    return nil if col-1 < 0
-    return nil unless @panel.element(row,col-1).show?
-    @panel.element(row,col-1)
-  end
-
-  def right(row, col)
-    return nil if col+1 >= @panel.column_count
-    return nil unless @panel.element(row,col+1).show?
-    @panel.element(row,col+1)
-  end
-
-  def down_left(row, col)
-    return nil if row+1 >= @panel.row_count || col-1 < 0
-    return nil unless @panel.element(row+1,col-1).show?
-    @panel.element(row+1,col-1)
-  end
-
-  def down(row, col)
-    return nil if row+1 >= @panel.row_count
-    return nil unless @panel.element(row+1,col).show?
-    @panel.element(row+1,col)
-  end
-
-  def down_right(row, col)
-    return nil if row+1 >= @panel.row_count || col+1  >= @panel.column_count
-    return nil unless @panel.element(row+1,col+1).show?
-    @panel.element(row+1,col+1)
-  end
-
-  def question(row, col)
-    @panel[row,col].state = 'disputed'
-    @state = 'playing'
-    {cell: @panel.element(row,col), state: @state}
-  end
-
-  def mark(row, col)
-    @panel[row,col].state = 'marked'
-    @state = 'winner' if self.winner?
-    {cell: @panel.element(row,col), state: @state}
-  end
-
-  def winner?
-    #return true if all marks are in -1 value
-    return false if @state == 'looser'
-    @panel.map {|cell|
-      return false if cell.state == 'disputed'
-      return false if cell.state != 'clicked'  && cell.value != -1
-      return false if cell.value != -1 && cell.state == 'marked'
-      return false if cell.value == -1 && cell.state != 'marked'
-    }
-    return true
+  def getCellByIndex(index)
+    coordinates = indexToCoordinate(index)
+    self.getCell(coordinates[:row], coordinates[:col])
   end
 
   private
-    def setValues
-      @panel.each_with_index {|cell, row, col|
-        next unless cell.value == -1
-        neighbors(row,col).each do |ncell|
-          ncell.value += 1 unless ncell.value == -1
-        end
+    def createCells
+      0.upto(self.rows-1).each do |row|
+         0.upto(self.columns-1).each do |col|
+           self.cells << Cell.new(row: row, col: col, value: 0, state: :unclicked)
+         end
+      end
+      #randomize mines position
+      index_mines = (0..((self.rows * self.columns)-1)).to_a.sample(self.mines).sort
+      index_mines.each { |i|
+        self.getCellByIndex(i).value = -1
       }
+      setCellValues
     end
 
-    def neighbors(row, col)
-      [
-        up_left(row,col),
-        up(row,col),
-        up_right(row,col),
-        left(row,col),
-        right(row,col),
-        down_left(row,col),
-        down(row,col),
-        down_right(row,col)
-      ].compact
+    def indexToCoordinate(index)
+      {row: index / self.columns, col: index % self.columns}
+    end
+
+    def setCellValues
+      0.upto(self.rows-1).each do |row|
+         0.upto(self.columns-1).each do |col|
+           cell = self.getCell(row, col)
+           next unless cell.value == -1
+           cell.neighbors.each do |ncell|
+             ncell.value += 1 unless ncell.value == -1
+           end
+         end
+      end
     end
 end

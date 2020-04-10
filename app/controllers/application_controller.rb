@@ -5,10 +5,10 @@ class ApplicationController < ActionController::API
     return true if authorized
     render json: { errors: [
                             {
-                              status: "unauthorized",
-                              code: "401",
-                              title: "Access denied",
-                              details: ""
+                              status: 'unauthorized',
+                              code: '401',
+                              title: 'Access denied',
+                              details: ''
                             }]
                   }, status: :unauthorized
   end
@@ -17,6 +17,7 @@ class ApplicationController < ActionController::API
     def authorized
       token = request.headers['Authorization'].sub('Bearer ','')
       decoded_token = JWT.decode token, Rails.application.credentials.jwt[:secret_key], true, { algorithm: Rails.application.credentials.jwt[:algorithm] }
-      return User.exists?(email: decoded_token.first["email"], password: decoded_token.first["password"])
+      @user = User.where(email: decoded_token.first["email"], password: decoded_token.first["password"]).first
+      return @user.nil? ? false : true
     end
 end
