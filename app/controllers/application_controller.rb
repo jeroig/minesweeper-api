@@ -15,6 +15,8 @@ class ApplicationController < ActionController::API
 
   private
     def authorized
+      #@user = User.first
+      #return @user.nil? ? false : true
       token = request.headers['Authorization'].sub('Bearer ','')
       decoded_token = JWT.decode token, Rails.application.credentials.jwt[:secret_key], true, { algorithm: Rails.application.credentials.jwt[:algorithm] }
       @user = User.where(email: decoded_token.first["email"], password: decoded_token.first["password"]).first

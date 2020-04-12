@@ -1,5 +1,3 @@
-#require 'matrix'
-
 class Board < ApplicationRecord
   enum state: { playing: 0, winner: 1, loser: 2 }
 
@@ -15,6 +13,21 @@ class Board < ApplicationRecord
 
   before_create :createCells
 
+  def click(row,col)
+    self.getCell(row, col).stateTo('clicked').merge(state: self.state)
+  end
+
+  def to_click(row,col)
+    self.getCell(row, col).stateTo('unclicked').merge(state: self.state)
+  end
+
+  def question(row, col)
+    self.getCell(row, col).stateTo('disputed').merge(state: self.state)
+  end
+
+  def mark(row, col)
+    self.getCell(row, col).stateTo('marked').merge(state: self.state)
+  end
 
   def cellsByRows
     0.upto(self.rows-1).map do |row|
@@ -35,6 +48,19 @@ class Board < ApplicationRecord
   def getCellByIndex(index)
     coordinates = indexToCoordinate(index)
     self.getCell(coordinates[:row], coordinates[:col])
+  end
+
+
+  def winner?
+    #return true if all marks are in -1 value
+    return false if self.loser?
+    self.cells.map {|cell|
+      return false if  cell.disputed?
+      return false if !cell.clicked? && !cell.mine?
+      return false if !cell.mine?    && cell.marked?
+      return false if  cell.mine?    && !cell.marked?
+    }
+    return true
   end
 
   private

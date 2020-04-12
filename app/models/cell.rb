@@ -2,13 +2,24 @@ class Cell < ApplicationRecord
   belongs_to :board
   enum state: { unclicked: 0, clicked: 1, disputed: 2, marked: 3 }
 
+  after_update :updateBoardState, if: Proc.new {|obj|
+      obj.saved_change_to_state?(from: 'unclicked', to: 'clicked') ||
+      obj.saved_change_to_state?(to: 'marked')
+  }
+
+
+  def stateTo(new_state)
+    data = (new_state == 'clicked') ? {neighbors: self.neighbors, was_clicked: self.clicked? } : {}
+    self.update(state: new_state)
+    data.merge(cell: self.as_json(only: [:row, :col, :value, :state]))
+  end
+
   def show?
-    return true if !self.mine? && self.unclicked?
-    return false
+    (!self.mine? && self.unclicked?) ? true : false
   end
 
   def mine?
-    return (self.value == -1) ? true : false
+    (self.value == -1) ? true : false
   end
 
   def up_left
@@ -72,5 +83,11 @@ class Cell < ApplicationRecord
       self.down_right
     ].compact
   end
+
+  private
+    def updateBoardState
+      self.board.update(state: :loser)  if self.board.playing? && self.mine? && self.saved_change_to_state?(from: 'unclicked', to: 'clicked')
+      self.board.update(state: :winner) if self.board.playing? && self.board.winner?
+    end
 
 end
