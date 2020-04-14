@@ -1,4 +1,4 @@
-# minesweeper-api
+# Minesweeper-api
 
 Design and implement RESTful API for the game
 
@@ -7,6 +7,7 @@ As API we defined support routes to be called
 
 ### For User
 ```post 'api/user/register'``` mandatory data {email: string, password: string}
+
 ```post 'api/user/login'```    mandatory data {email: string, password: string}
 
 It is recommended to encrypt the password.
