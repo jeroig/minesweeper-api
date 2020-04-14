@@ -35,23 +35,23 @@ get 'api/game/:id/question/row/:row/col/:col'
 
 When reset a game the API return data related to the new Game
 
-```json
+```yaml
 {
-  message: ok,
-  game:{
-        id: GAME_ID,
-        timer: TIMER in seg.,
-        state: playing|loser|winner,
-        board:{
-               rows: number_of_rows,
-               columns: number_of_columns,
-               mines: number_of_mines,
-               cells:[
+  "message": "ok",
+  "game":{
+        "id": "GAME_ID",
+        "timer": "TIMER in seg.",
+        "state": "playing|loser|winner",
+        "board":{
+               "rows": "number_of_rows",
+               "columns": "number_of_columns",
+               "mines": "number_of_mines",
+               "cells":[
                         {
-                          row: row_value,
-                          col: col_value,
-                          value: number of mine around the cell or -1 if a mine,
-                          state: click|unclicked|disputed|marked
+                          "row": "row_value",
+                          "col": "col_value",
+                          "value": "number of mine around the cell or -1 if a mine",
+                          "state": "click|unclicked|disputed|marked"
                         },
                         ....
                         ....
@@ -60,31 +60,31 @@ When reset a game the API return data related to the new Game
 
 For actions like ***to_click***, ***mark*** & ***question*** the API return
 
-```json
+```yaml
 {
- cell:{
-        row: row_value,
-        col: col_value,
-        value: number of mine around the cell or -1 if a mine,
-        state: click|unclicked|disputed|marked
+ "cell":{
+        "row": "row_value",
+        "col": "col_value",
+        "value": "number of mine around the cell or -1 if a mine",
+        "state": "click|unclicked|disputed|marked"
       }
- state: playing|loser|winner
+ "state": "playing|loser|winner"
 }
 ```
 
 For each ***click*** action de API return a JSON with
 
-```json
+```yaml
 {
-  cell:{
-         row: row_value,
-         col: col_value,
-         value: number of mine around the cell or -1 if a mine,
-         state: click|unclicked|disputed|marked
+  "cell":{
+         "row": "row_value",
+         "col": "col_value",
+         "value": "number of mine around the cell or -1 if a mine",
+         "state": click|unclicked|disputed|marked"
        },
-  was_clicked: boolean (if the cell already 'clicked')
-  neighbors: {list_cell_neighbors to discover}
-  state: playing|looser|winner
+  "was_clicked": "boolean (if the cell already 'clicked')"
+  "neighbors": ["list_cell_neighbors to discover"]
+  "state": "playing|looser|winner"
 }
 ```
 
