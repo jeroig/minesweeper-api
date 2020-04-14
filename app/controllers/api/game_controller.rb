@@ -35,7 +35,7 @@ class Api::GameController < ApplicationController
                           rows:    @board.rows,
                           columns: @board.columns,
                           mines:   @board.mines,
-                          cells:   @board.cellsByRows
+                          cells: @board.cells.map { |cell| cell.as_json(only: [:row, :col, :value, :state]) }
                         }
                       }
                     }, status: :created

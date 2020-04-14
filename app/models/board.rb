@@ -29,6 +29,7 @@ class Board < ApplicationRecord
     self.getCell(row, col).stateTo('marked').merge(state: self.state)
   end
 
+  # Deprecated Method
   def cellsByRows
     0.upto(self.rows-1).map do |row|
       self.cells.where(row: row).select(:id, :value, :row, :col, :state).order(col: :asc)

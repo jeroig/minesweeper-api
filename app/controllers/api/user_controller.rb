@@ -8,13 +8,11 @@ class Api::UserController < ApplicationController
           email: params[:user][:email]
       }, status: :ok
     else
-      #render json: { error: 'Invalid login.' }, status: :unauthorized
       render json: { error: 'Invalid login.' }, status: :bad_request
     end
   end
 
   def register
-    #TO-DO real register
     unless User.exists?(email: params[:user][:email])
       @user = User.new(email: params[:user][:email], password: params[:user][:password])
       if @user.valid?
