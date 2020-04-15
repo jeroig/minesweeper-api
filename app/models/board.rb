@@ -73,7 +73,7 @@ class Board < ApplicationRecord
     def setTimer
       new_timer = (self.updated_at - self.created_at).round
       if new_timer > LIMIT_TIMER
-        self.update_columns(state: :looser, timer: LIMIT_TIMER)
+        self.update_columns(state: :loser, timer: LIMIT_TIMER)
       else
         self.update_columns(timer: new_timer)
       end
