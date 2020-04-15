@@ -19,19 +19,19 @@ class Board < ApplicationRecord
   }
 
   def click(row,col)
-    self.getCell(row, col).stateTo('clicked').merge(state: self.state)
+    self.getCell(row, col).stateTo('clicked').merge(state: self.state, timer: self.timer)
   end
 
   def to_click(row,col)
-    self.getCell(row, col).stateTo('unclicked').merge(state: self.state)
+    self.getCell(row, col).stateTo('unclicked').merge(state: self.state, timer: self.timer)
   end
 
   def question(row, col)
-    self.getCell(row, col).stateTo('disputed').merge(state: self.state)
+    self.getCell(row, col).stateTo('disputed').merge(state: self.state, timer: self.timer)
   end
 
   def mark(row, col)
-    self.getCell(row, col).stateTo('marked').merge(state: self.state)
+    self.getCell(row, col).stateTo('marked').merge(state: self.state, timer: self.timer)
   end
 
   # Deprecated Method

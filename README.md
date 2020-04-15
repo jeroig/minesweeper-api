@@ -68,7 +68,8 @@ For actions like ***to_click***, ***mark*** & ***question*** the API return
         "value": "number of mine around the cell or -1 if a mine",
         "state": "click|unclicked|disputed|marked"
       }
- "state": "playing|loser|winner"
+ "state": "playing|loser|winner",
+ "timer": "TIMER in seg."
 }
 ```
 
@@ -82,15 +83,16 @@ For each ***click*** action de API return a JSON with
          "value": "number of mine around the cell or -1 if a mine",
          "state": click|unclicked|disputed|marked"
        },
-  "was_clicked": "boolean (if the cell already 'clicked')"
-  "neighbors": ["list_cell_neighbors to discover"]
-  "state": "playing|looser|winner"
+  "was_clicked": "boolean (if the cell already 'clicked')",
+  "neighbors": ["list_cell_neighbors to discover"],
+  "state": "playing|looser|winner",
+  "timer": "TIMER in seg."
 }
 ```
 
 ## TODO
 
-- [x] Time tracking
+- [x] Time tracking (One day is the limit to finish a board)
 - [x] Ability to start a new game and preserve the old ones
 - [ ] Ability to resume an old game
 - [x] Ability to support multiple users/accounts
