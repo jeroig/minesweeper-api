@@ -38,15 +38,15 @@ When reset a game the API return data related to the new Game
 ```yaml
 {
   "message": "ok",
-  "game":{
+  "game": {
         "id": "GAME_ID",
         "timer": "TIMER in seg.",
         "state": "playing|loser|winner",
-        "board":{
+        "board": {
                "rows": "number_of_rows",
                "columns": "number_of_columns",
                "mines": "number_of_mines",
-               "cells":[
+               "cells": [
                         {
                           "row": "row_value",
                           "col": "col_value",
@@ -62,7 +62,7 @@ For actions like ***to_click***, ***mark*** & ***question*** the API return
 
 ```yaml
 {
- "cell":{
+ "cell": {
         "row": "row_value",
         "col": "col_value",
         "value": "number of mine around the cell or -1 if a mine",
@@ -76,7 +76,7 @@ For each ***click*** action de API return a JSON with
 
 ```yaml
 {
-  "cell":{
+  "cell": {
          "row": "row_value",
          "col": "col_value",
          "value": "number of mine around the cell or -1 if a mine",
@@ -90,7 +90,7 @@ For each ***click*** action de API return a JSON with
 
 ## TODO
 
-* Time tracking
-* ~~Ability to start a new game and preserve the old ones~~
-* Ability to resume an old game
-* ~~Ability to support multiple users/accounts~~
+- [ ] Time tracking
+- [x] Ability to start a new game and preserve the old ones
+- [ ] Ability to resume an old game
+- [x] Ability to support multiple users/accounts

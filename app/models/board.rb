@@ -12,6 +12,7 @@ class Board < ApplicationRecord
   validates_numericality_of :mines, less_than: ->(board) { board.rows * board.columns },  message: 'Mines overflow'
 
   before_create :createCells
+  after_touch   :setTimer
 
   def click(row,col)
     self.getCell(row, col).stateTo('clicked').merge(state: self.state)
@@ -65,6 +66,10 @@ class Board < ApplicationRecord
   end
 
   private
+    def setTimer
+      # Migrate field timer to float (see limits)
+    end
+
     def createCells
       0.upto(self.rows-1).each do |row|
          0.upto(self.columns-1).each do |col|

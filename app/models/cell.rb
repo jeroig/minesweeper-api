@@ -1,5 +1,5 @@
 class Cell < ApplicationRecord
-  belongs_to :board
+  belongs_to :board, touch: true
   enum state: { unclicked: 0, clicked: 1, disputed: 2, marked: 3 }
 
   after_update :updateBoardState, if: Proc.new {|obj|
