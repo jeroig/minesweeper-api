@@ -67,6 +67,8 @@ class Board < ApplicationRecord
 
   private
     def setTimer
+      #debugger
+      #1 + 1
       # Migrate field timer to float (see limits)
     end
 

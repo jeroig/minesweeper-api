@@ -45,3 +45,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'rb-readline'
 gem 'jwt'
 gem 'mysql2'
+gem 'rack-cors'
