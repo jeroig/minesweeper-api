@@ -18,7 +18,7 @@ class Api::GameController < ApplicationController
   end
 
   def reset
-    @board = Board.new(user_id: @user.id, rows: params[:rows].to_i, columns: params[:columns].to_i, mines: params[:mines].to_i, timer: 0, state: 'playing')
+    @board = Board.new(user_id: @user.id, rows: params[:rows].to_i, columns: params[:columns].to_i, mines: params[:mines].to_i, state: 'playing')
     if @board.save
       render json: {
                       message: 'ok',
@@ -30,7 +30,7 @@ class Api::GameController < ApplicationController
                           rows:    @board.rows,
                           columns: @board.columns,
                           mines:   @board.mines,
-                          cells: @board.cells.map { |cell| cell.as_json(only: [:row, :col, :value, :state]) }
+                          cells:   @board.cells.map { |cell| cell.as_json(only: [:row, :col, :value, :state]) }
                         }
                       }
                     }, status: :created

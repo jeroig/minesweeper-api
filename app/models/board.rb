@@ -1,4 +1,5 @@
 class Board < ApplicationRecord
+  LIMIT_TIMER = 60 * 60 * 24 #One day is the limit to finish a Board
   enum state: { playing: 0, winner: 1, loser: 2 }
 
   belongs_to :user
@@ -12,7 +13,10 @@ class Board < ApplicationRecord
   validates_numericality_of :mines, less_than: ->(board) { board.rows * board.columns },  message: 'Mines overflow'
 
   before_create :createCells
-  after_touch   :setTimer
+  after_touch   :setTimer, if: Proc.new { |board|
+    board.playing? ||
+    board.saved_change_to_state?(from: 'playing', to: 'winner')
+  }
 
   def click(row,col)
     self.getCell(row, col).stateTo('clicked').merge(state: self.state)
@@ -67,9 +71,12 @@ class Board < ApplicationRecord
 
   private
     def setTimer
-      #debugger
-      #1 + 1
-      # Migrate field timer to float (see limits)
+      new_timer = (self.updated_at - self.created_at).round
+      if new_timer > LIMIT_TIMER
+        self.update_columns(state: :looser, timer: LIMIT_TIMER)
+      else
+        self.update_columns(timer: new_timer)
+      end
     end
 
     def createCells

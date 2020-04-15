@@ -13,7 +13,7 @@
 ActiveRecord::Schema.define(version: 2020_04_10_131724) do
 
   create_table "boards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "timer", limit: 2
+    t.integer "timer"
     t.integer "state", limit: 1
     t.integer "rows", limit: 1
     t.integer "columns", limit: 1
