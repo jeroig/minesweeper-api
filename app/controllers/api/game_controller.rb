@@ -1,5 +1,5 @@
 class Api::GameController < ApplicationController
-  before_action :set_board, except: :reset
+  before_action :set_board, except: [:reset, :history]
 
   def to_click
     render json: @board.to_click(@row, @col)
@@ -15,6 +15,19 @@ class Api::GameController < ApplicationController
 
   def question
     render json: @board.question(@row, @col)
+  end
+
+  def history
+    @boards = Board.where(user: @user).order(id: :desc).limit(30)
+    render json: (@boards.map do |board|
+                    {
+                      id: board.id,
+                      date: board.created_at.strftime('%d/%m/%Y'),
+                      duration: board.timer.to_s + ' sec.',
+                      status: board.state,
+                      board: { rows: board.rows, columns: board.columns, mines: board.mines }
+                    }
+                  end)
   end
 
   def reset

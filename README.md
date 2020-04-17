@@ -26,6 +26,7 @@ headers.common['Authorization'] = `Bearer ${token}`
 ```
 
 ```ruby
+get 'api/game/history'
 get 'api/game/reset/:rows/:columns/:mines'
 get 'api/game/:id/click/row/:row/col/:col'
 get 'api/game/:id/to_click/row/:row/col/:col'
