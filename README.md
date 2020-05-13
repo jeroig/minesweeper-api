@@ -97,3 +97,4 @@ For each ***click*** action de API return a JSON with
 - [x] Ability to start a new game and preserve the old ones
 - [ ] Ability to resume an old game
 - [x] Ability to support multiple users/accounts
+- [ ] Improve testing

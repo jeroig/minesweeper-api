@@ -14,8 +14,8 @@ RSpec.describe Api::UserController do
       expect(response).to have_http_status(:success)
     end
 
-    it "returns http bad_request" do
-      @user1 = create(:user, email: 'user1@user1.com', password: 'demo')
+    it "returns http bad_request / error register" do
+      @user1 = create(:user)
       post '/api/user/register', params: { user: @user1.as_json(only: [:email, :password]) }
       expect(response).to have_http_status(:bad_request)
     end
@@ -31,7 +31,7 @@ RSpec.describe Api::UserController do
 
   describe "Login", type: :request  do
      before do
-       @user1 = create(:user, email: 'user@user.com', password: 'demo')
+       @user1 = create(:user)
      end
 
      it "returns http success" do
@@ -39,7 +39,7 @@ RSpec.describe Api::UserController do
        expect(response).to have_http_status(:success)
      end
 
-     it "returns http bad_request" do
+     it "returns http bad_request / error login" do
        post '/api/user/login', params: { user: { :email => 'user2@user2.com', :password => 'demo' } }
        expect(response).to have_http_status(:bad_request)
      end
